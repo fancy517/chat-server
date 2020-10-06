@@ -31,11 +31,10 @@ class Consumer(WebsocketConsumer):
         message = text_data_json['message']
         sender = text_data_json['sender']
         receiver = text_data_json['receiver']
+        message_type = text_data_json['message_type']
 
-        if(receiver):
-            senderInstance = User.objects.get(pk=sender['pk'])
-            receiverInstance = User.objects.get(pk=receiver['pk'])            
-            newMessage = Message(sender=senderInstance, receiver = receiverInstance ,text=message)
+        if(receiver):            
+            newMessage = Message(sender=sender, receiver=receiver, text=message, message_type=message_type)
             newMessage.save()
 
         # Send message to room group
@@ -44,7 +43,8 @@ class Consumer(WebsocketConsumer):
             {
                 'type': 'chat_message',
                 'message': message,
-                'sender' : sender
+                'sender' : sender,
+                'message_type': message_type
             }
         )
 
@@ -52,11 +52,14 @@ class Consumer(WebsocketConsumer):
     def chat_message(self, event):
         message = event['message']
         sender = event['sender']
+        message_type = event['message_type']
 
         print(message)
 
         # Send message to WebSocket
         self.send(text_data=json.dumps({
             'message': message,
-            'sender': sender
+            'sender': sender,
+            'type': message_type
         }))
+        

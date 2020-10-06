@@ -9,5 +9,6 @@ urlpatterns = [
     url(r'^messages/', views.messages, name='messages'),            
     url(r'^message/(?P<selected_user>\w+)/$', views.message, name='messages'),
     url(r'^api/messages/', views.messagesApi, name='messagesApi'),
+    url(r'^api/getMessages', views.getMessages, name='getMessages'),
     url(r'^api/message/(?P<selected_user>\w+)/$', views.messageApi, name='messagesApi'),
 ]

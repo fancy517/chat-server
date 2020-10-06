@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/1.11/ref/settings/
 """
 
 import os
+from decouple import config
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -23,9 +24,9 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = 'f!57yy1*g9u3u$=$8)6&$kfe%8+)!lf=+e6u88iq33f2ifh8(!'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = config("DEBUG", default=False, cast=bool)
 
-ALLOWED_HOSTS = ['192.168.100.23', 'localhost']
+ALLOWED_HOSTS = ['192.168.100.23', 'localhost', 'localhost:8080', '127.0.0.1']
 
 
 # Application definition
@@ -39,11 +40,13 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'corsheaders'
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -77,8 +80,19 @@ WSGI_APPLICATION = 'liveChat.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+
+        'NAME': config("SQL_DATABASE", default='samplers'),
+
+        'USER': config("SQL_USER", default='postgres'),
+
+        'PASSWORD': config("SQL_PASSWORD"),
+
+        'HOST': config("SQL_HOST"),
+
+        'PORT': '5432',
+
     }
 }
 
@@ -133,3 +147,7 @@ CHANNEL_LAYERS = {
 }
 
 LOGIN_REDIRECT_URL = '/messages'
+
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:8080",
+]

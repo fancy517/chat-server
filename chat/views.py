@@ -6,6 +6,7 @@ from django.contrib.auth.models import User
 from django.utils.safestring import mark_safe
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
 
 
 @login_required
@@ -40,6 +41,19 @@ def message(request, selected_user):
         'selected_user': mark_safe( serializers.serialize('json', [ User.objects.get(pk=selected_user) ] ) ),
         'messages': mark_safe( serializers.serialize('json', messages.order_by('created_at') ) ),
     })
+
+@csrf_exempt
+def getMessages(request):
+    payload=json.loads(request.body)
+    user1 = payload['user1']
+    user2 = payload['user2']
+    messages = Message.objects.filter(sender=user1, receiver=user2) | Message.objects.filter(sender=user2, receiver=user1)
+
+    json_response = {
+        'messages': json.loads(serializers.serialize('json', messages.order_by('created_at') )),
+    }
+
+    return JsonResponse(json_response)
 
 @login_required
 def messagesApi(request):

@@ -7,3 +7,4 @@ class Message(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     sender = models.TextField()
     receiver = models.TextField()
+    room_id = models.TextField(default="p2pchat")

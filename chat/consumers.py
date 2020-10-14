@@ -32,10 +32,13 @@ class Consumer(WebsocketConsumer):
         sender = text_data_json['sender']
         receiver = text_data_json['receiver']
         message_type = text_data_json['message_type']
+        room_id = text_data_json['room_id']
 
-        if(receiver):            
+        if(room_id):            
+            newMessage = Message(sender=sender, receiver=receiver, text=message, message_type=message_type, room_id=room_id)
+        else:
             newMessage = Message(sender=sender, receiver=receiver, text=message, message_type=message_type)
-            newMessage.save()
+        newMessage.save()
 
         # Send message to room group
         async_to_sync(self.channel_layer.group_send)(

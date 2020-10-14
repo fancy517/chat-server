@@ -9,71 +9,19 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 
 
-@login_required
-def index(request):
-    return render(request, 'chat/chatRoomIndex.html', {})
-
-
-@login_required
-def room(request, room_name):
-    return render(request, 'chat/chatRoom.html', {
-        'room_name_json': mark_safe(json.dumps(room_name)),
-        'current_user': mark_safe( serializers.serialize('json', [ request.user ] ) ),
-    })    
-
-
-@login_required
-def messages(request):
-    return render(request, 'chat/messages.html', {  
-        'users':   mark_safe( serializers.serialize('json', User.objects.all() ) ),
-        'current_user': mark_safe( serializers.serialize('json', [ request.user ] ) ),
-        'messages': mark_safe( serializers.serialize('json', [] ) ),
-    })
-
-@login_required
-def message(request, selected_user):
-    user1 = User.objects.get(pk=selected_user)
-    user2 = User.objects.get(pk=request.user.pk)
-    messages = Message.objects.filter(sender=user1, receiver=user2) | Message.objects.filter(sender=user2, receiver=user1)
-    return render(request, 'chat/messages.html', {
-        'users':   mark_safe( serializers.serialize('json', User.objects.all() ) ),
-        'current_user': mark_safe( serializers.serialize('json', [ request.user ] ) ),
-        'selected_user': mark_safe( serializers.serialize('json', [ User.objects.get(pk=selected_user) ] ) ),
-        'messages': mark_safe( serializers.serialize('json', messages.order_by('created_at') ) ),
-    })
-
 @csrf_exempt
 def getMessages(request):
     payload=json.loads(request.body)
-    user1 = payload['user1']
-    user2 = payload['user2']
-    messages = Message.objects.filter(sender=user1, receiver=user2) | Message.objects.filter(sender=user2, receiver=user1)
+    user1 = payload.get('user1')
+    user2 = payload.get('user2')
+    room_id = payload.get('room_id')
+    if (room_id):
+    	messages = Message.objects.filter(room_id=room_id)
+    else:
+    	messages = Message.objects.filter(sender=user1, receiver=user2) | Message.objects.filter(sender=user2, receiver=user1)
 
     json_response = {
         'messages': json.loads(serializers.serialize('json', messages.order_by('created_at') )),
     }
 
-    return JsonResponse(json_response)
-
-@login_required
-def messagesApi(request):
-    current_user = User.objects.get(pk=request.user.pk)
-    messages = Message.objects.filter(sender=current_user) | Message.objects.filter(receiver=current_user)
-    json_response = {
-        'users': json.loads(serializers.serialize('json', User.objects.all(), fields=('first_name', 'last_name'))),
-        'messages': json.loads(serializers.serialize('json', messages.order_by('created_at')[:10])),
-    }
-    return JsonResponse(json_response)
-
-@login_required
-def messageApi(request, selected_user):
-    user1 = User.objects.get(pk=selected_user)
-    user2 = User.objects.get(pk=request.user.pk)
-    messages = Message.objects.filter(sender=user1, receiver=user2) | Message.objects.filter(sender=user2, receiver=user1)
-    json_response = {
-        'users':   json.loads( serializers.serialize('json', User.objects.all() ) ),
-        'current_user': json.loads( serializers.serialize('json', [ request.user ] ) ),
-        'selected_user': json.loads( serializers.serialize('json', [ User.objects.get(pk=selected_user) ] ) ),
-        'messages': json.loads( serializers.serialize('json', messages.order_by('created_at') ) ),
-    }
     return JsonResponse(json_response)

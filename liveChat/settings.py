@@ -26,7 +26,7 @@ SECRET_KEY = 'f!57yy1*g9u3u$=$8)6&$kfe%8+)!lf=+e6u88iq33f2ifh8(!'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = config("DEBUG", default=False, cast=bool)
 
-ALLOWED_HOSTS = ['192.168.100.23', 'localhost', 'localhost:8080', '127.0.0.1']
+ALLOWED_HOSTS = ['192.168.100.23', 'localhost', 'localhost:8080', '127.0.0.1', 'chat.samplersusa.com', '54.69.102.26', '172.31.0.189']
 
 
 # Application definition

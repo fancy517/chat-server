@@ -7,7 +7,7 @@ from django.utils.safestring import mark_safe
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
-
+from django.db.models import Q
 
 @csrf_exempt
 def getMessages(request):
@@ -15,13 +15,16 @@ def getMessages(request):
     user1 = payload.get('user1')
     user2 = payload.get('user2')
     room_id = payload.get('room_id')
+    page = payload.get('page')
+    offset = payload.get('offset')
     if (room_id):
     	messages = Message.objects.filter(room_id=room_id)
     else:
     	messages = Message.objects.filter(sender=user1, receiver=user2) | Message.objects.filter(sender=user2, receiver=user1)
 
     json_response = {
-        'messages': json.loads(serializers.serialize('json', messages.order_by('created_at') )),
+        'messages': json.loads(serializers.serialize('json', messages.order_by('-created_at')[(page - 1) * offset : page * offset] )),
+        'count': messages.count()
     }
 
     return JsonResponse(json_response)

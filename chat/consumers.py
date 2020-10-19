@@ -33,6 +33,7 @@ class Consumer(WebsocketConsumer):
         receiver = text_data_json['receiver']
         message_type = text_data_json['message_type']
         room_id = text_data_json['room_id']
+        username = text_data_json['username']
 
         if(room_id):            
             newMessage = Message(sender=sender, receiver=receiver, text=message, message_type=message_type, room_id=room_id)
@@ -47,7 +48,8 @@ class Consumer(WebsocketConsumer):
                 'type': 'chat_message',
                 'message': message,
                 'sender' : sender,
-                'message_type': message_type
+                'message_type': message_type,
+                'username': username
             }
         )
 
@@ -56,6 +58,7 @@ class Consumer(WebsocketConsumer):
         message = event['message']
         sender = event['sender']
         message_type = event['message_type']
+        username = event['username']
 
         print(message)
 
@@ -63,6 +66,7 @@ class Consumer(WebsocketConsumer):
         self.send(text_data=json.dumps({
             'message': message,
             'sender': sender,
-            'type': message_type
+            'type': message_type,
+            'username': username
         }))
         
